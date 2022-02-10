@@ -1,0 +1,40 @@
+version: '3.1'
+
+services:
+  rundeck:
+    restart: always
+    image: rundeck/rundeck:3.4.3
+    #image: ${RUNDECK_IMAGE:-rundeck/rundeck:SNAPSHOT}
+    container_name: rundeck
+    links:
+      - postgres
+    environment:
+      - RUNDECK_DATABASE_DRIVER=org.postgresql.Driver
+      - RUNDECK_DATABASE_USERNAME=rundeck
+      - RUNDECK_DATABASE_PASSWORD=rundeck
+      - RUNDECK_DATABASE_URL=jdbc:postgresql://postgres/rundeck?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+      - RUNDECK_MAIL_FROM=email@gmail.com
+      - RUNDECK_MAIL_STMP_HOST=smtp.gmail.com
+      - RUNDECK_MAIL_STMP_USERNAME=email@gmail.com
+      - RUNDECK_MAIL_STMP_PORT=25
+      - RUNDECK_MAIL_STMP_PASSWORD=qwqw
+      - RUNDECK_MAIL_PROPS=["mail.smtp.auth":"true","mail.smtp.port":"587","mail.smtp.starttls.enable":"true","mail.smtp.socketFactory.port":"587"]
+    volumes:
+      - ${RUNDECK_LICENSE_FILE:-/dev/null}:/home/rundeck/etc/rundeckpro-license.key
+    ports:
+      - 4440:4440
+
+  postgres:
+    image: postgres
+    restart: always
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_DB=rundeck
+      - POSTGRES_USER=rundeck
+      - POSTGRES_PASSWORD=rundeck
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+volumes:
+  dbdata:
